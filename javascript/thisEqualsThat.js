@@ -838,10 +838,10 @@ $(function(){
       display.colorControl.append(display.ccRandomisePosition);
 
 
-      display.bottomModelSelectDiv  = $("<div class='bottomModelSelectDiv bottomModelSelectDiv."+this.id+"' />");
+      display.bottomModelSelectDiv    = $("<div class='bottomModelSelectDiv bottomModelSelectDiv."+this.id+"' />");
       display.bottomModelSelectLable  = $("<div class='bottomModelSelectLable'/>");
       display.bottomModelSelectDiv.append(display.bottomModelSelectLable);
-      display.bottomModelDiv        = $("<div class='bottomModelDiv' />");
+      display.bottomModelDiv          = $("<div class='bottomModelDiv' />");
 
       var d = display.displayElement;
 
@@ -864,7 +864,9 @@ $(function(){
       d.append(display.bottomModelDiv);
 
 
-      targetContainer.append(this.display.displayElement).coloPick();
+      targetContainer.append(this.display.displayElement)
+
+      targetContainer.installColorPickerOnFields();
       //display.bottomModelDiv = sceneContainer;
 
       //display.displayElement.append(display.textOutputLabel);
@@ -1945,7 +1947,7 @@ $('body').append('<div class="copyrightContainer"><p>© This Equals ltd 2016</di
 $('.thisEqualsScene').append('<button class="hamburger hamburger--arrow" type="button" aria-label="Menu" aria-controls="navigation"><span class="hamburger-box"><span class="hamburger-inner"></span></span></button>');
 
 
-$.fn.coloPick = function() {
+$.fn.installColorPickerOnFields = function() {
     console.info('CP created');
     $('input.unit_rgb').colorpicker({
         inline: false,
