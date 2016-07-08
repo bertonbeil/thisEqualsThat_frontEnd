@@ -641,9 +641,13 @@ $(function(){
       display.svgOutput             = $("<div class='svgOutput'  />");
 
       display.svgTextInput          = $("<input type='text' class='svgTextDescription' placeholder='Enter Text Description'/>");
-      display.svgSaveLink           = $("<div class='svgSaveLink btn'   />");
+      display.svgSaveLink           = $("<div class='svgSaveLink  btn'   />");
+      display.svgShareLink          = $("<div class='svgShareLink btn'>Share</div>");
+      
+
       display.svgModelRoot          = $("<div class='svgModelRoot'  />");
       display.referenceSVG          = $("<div class='referenceSVG'  />");
+      
       var containerSVG        = document.createElementNS(d3.ns.prefix.svg, "svg");
       $(containerSVG)
           .attr("xmlns",        "//www.w3.org/2000/svg")
@@ -702,8 +706,8 @@ $(function(){
                 This.svg_createSaveLink(This);
               },
         };
-      var controlList = ["axes", "svgReferenceG", "svgTextDescription"];
-      for (var name of controlList)
+      display.toggleControlList = ["axes", "svgReferenceG", "svgTextDescription"];
+      for (var name of display.toggleControlList)
       { display.toggle[name].on("change", display.toggle[name+".changeEvent"]);
         display.toggle[name].appendTo(display.toggle[name+".label"]);
         display.toggleFeatures.append(display.toggle[name+".label"]);
@@ -857,8 +861,8 @@ $(function(){
       display.modelOutputTest.append(display.toggleFeatures);
       display.modelOutputTest.append(display.colorControl);
       display.modelCustomSvg.append(display.svgSaveLink);
+      display.modelCustomSvg.append(display.svgShareLink);
       display.modelCustomSvg.append(display.svgTextInput);
-
 
       d.append(display.topModelDiv);
       d.append(display.bottomModelDiv);
@@ -867,6 +871,34 @@ $(function(){
       targetContainer.append(this.display.displayElement)
 
       targetContainer.installColorPickerOnFields();
+
+      var toggleFeatureVal = {}
+      for (var toggleFeature of This.display.toggleControlList)
+      { toggleFeatureVal[toggleFeature] = This.display.toggle[toggleFeature].val()
+      }
+
+      display.svgShareLink.on
+      (   "click", 
+          function()
+          { debugger;
+            var ajaxOptions = 
+            { "url":  "/getEmbedURL",
+              "type": "POST",
+              "data": { "modelInstanceUUID":  This.id,
+                        "titleInput":         This.display.svgTextInput.val(),
+                        "toggleFeatures":     JSON.stringify(toggleFeatureVal),
+                      },
+              "dataType": "json",
+              "success" : 
+                  function(data)
+                  { console.log(data);
+                    debugger;
+                  },
+              
+            };
+            $.ajax(ajaxOptions);
+          }
+      );
       //display.bottomModelDiv = sceneContainer;
 
       //display.displayElement.append(display.textOutputLabel);
