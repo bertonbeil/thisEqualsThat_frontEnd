@@ -270,6 +270,22 @@ function($)
     return toReturn;
   }
 
+// link with icon and text
+  this.iconLink =
+  function(passThrough, appendTo, icon, linkText)
+  { var toReturn = O.create
+    ( [
+        [ [ icon ],
+          [ "span", linkText ]
+        ],
+      ],
+      passThrough,
+      appendTo
+    );
+
+    return toReturn;
+  }
+
   this.listGroups =
   { /*<div class="bs-component">
           <div class="list-group">
@@ -478,10 +494,10 @@ function($)
 
   this.tooltip =
   function(passThrough, appendTo, tooltipPrependList, tooltipContents, tooltipOptions)
-  { var toReturn = 
+  { var toReturn =
     O.create
     ( [ tooltipPrependList+"",
-        [ [ $("<a href=='#' class='tooltip' data-toggle='tooltip' title='"+tooltipContents+"' />"), 
+        [ [ $("<a href=='#' class='tooltip' data-toggle='tooltip' title='"+tooltipContents+"' />"),
           ],
         ],
       ],
