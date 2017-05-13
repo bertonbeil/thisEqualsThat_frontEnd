@@ -2,6 +2,8 @@ window.thisEqualsThat = {};
 thisEqualsThat.graphicLoadVersion = "0.0.9.20160726.1639";
 
 $('body').append('<link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">');
+// temporary link
+$('head').append('<link href="/static/css/thisEqThat.css"rel="stylesheet">');
 
 thisEqualsThat.svg          = {};
 thisEqualsThat.svgStore     = {};
@@ -93,25 +95,25 @@ thisEqualsThat.oop = function()
   };
 
   this.mainNavigation = function(navbar)
-  { O.create( [ ".bs-component",
+  { O.create( [ ".bs-component.navigation",
                 [
                   [ O.openModal_aTag
                     ( navbar, null, "profileModal",
                         ".createConstruct.row",
-                        O.listGroupItem ( navbar,
-                                          null,
-                                          "button", ".blueprintItem profileBtn", [12, 12, 6, 6], $('<i class="material-icons">account_circle</i>'), "", "@Profile", ""
-                                        )[0]
+                        O.iconLink ( navbar,
+                                     null,
+                                     $('<i class="material-icons">account_circle</i>'), "@Profile"
+                                   )[0]
                     )
                   ],
                   // [ ".square92.marginAuto", ".editProfile.panel.row"       ],
                   [ O.openModal_aTag
                     ( navbar, null, "constructBlueprint",
                         ".createConstruct.row",
-                        O.listGroupItem ( navbar,
-                                          null,
-                                          "button", ".blueprintItem constructBtn", [12, 12, 6, 6], $('<i class="material-icons">view_comfy</i>'), "", "@Construct", ""
-                                        )[0]
+                        O.iconLink ( navbar,
+                                      null,
+                                      $('<i class="material-icons">view_comfy</i>'), "@Construct"
+                                    )[0]
                     )
                   ],
                                         // ".createConstructImage.square92") ],this.
@@ -214,7 +216,7 @@ thisEqualsThat.oop = function()
 
     var tutorialPlayerStateChange =
       function(event)
-      { console.log("tutorial player state change event", event);
+      {  // console.log("tutorial player state change event", event);
 
         if (event.data == 0) //ended
         { $("body").toggleClass("playingTutorial", false);
@@ -333,9 +335,9 @@ thisEqualsThat.oop = function()
             }
         );
         setTimeout
-        ( function() 
+        ( function()
           { ThisEqualsThat.display.welcomeOver.toggleClass("opacityZero", true);
-     
+
             setTimeout
             ( function()
               { ThisEqualsThat.displayInterface(ThisEqualsThat.display);
@@ -363,10 +365,10 @@ thisEqualsThat.oop = function()
       function(passThrough, appendTo)
       { if (! this.hasOwnProperty("blueprintItem") )
         { var displayName = this.displayName || this.name;
-          this.blueprintItem = 
+          this.blueprintItem =
               O.listGroupItem
-              ( passThrough, 
-                appendTo, 
+              ( passThrough,
+                appendTo,
                 "button", ".blueprintItem.ripplelink", [4, 6, 6, 12], $("<img class='blueprintIcon smoothMove' src='"+this.imageURL+"' />"), "", "@"+displayName, "@");
           passThrough.blueprintItem.data("thisEquals_blueprint", this);
           //O.create( [ ".videoOverlay.smoothMove" ], passThrough, passThrough.blueprintItem );
@@ -380,7 +382,8 @@ thisEqualsThat.oop = function()
       { url: "getClassInstance",
         data: { modelClassName: this.name},
         success: function(data, status, request)
-        { console.log("getInstance:", this.name);
+        { console.log("getInstance:", ajaxOptions);
+          console.log("getInstance:", ajaxOptions.data["modelClassName"]);
           This.modelInstance = new ThisEqualsThat.ModelInstance(This, data[0]);
           This.modelInstance.modelPosition = "top";
           This.modelInstance.displayIntoTarget(displayContainer);
@@ -466,7 +469,7 @@ thisEqualsThat.oop = function()
         function(fieldNameString, value)
         { value['fullAddress'] = fieldNameString
           if (value['inputField'] == true)
-          { console.log("modelInstance: inputField: ", This, value);
+          { console.debug("modelInstance: inputField: ", This, value);
             value['currentValue'] = This.data.fieldValues[fieldNameString]
             var inputField = new ThisEqualsThat.ModelFieldInput(This, value);
             This.inputFieldData[fieldNameString] = inputField;
@@ -523,7 +526,7 @@ thisEqualsThat.oop = function()
         this.data.fields,
         function(index, value)
         { if (value["outputField"] == true)
-          { console.log("modelInstance: outputField: ", This, value);
+          { console.debug("modelInstance: outputField: ", This, value);
             var outputField = new ThisEqualsThat.ModelFieldOutput(This, value);
             This.outputFieldData[value.toString()] = outputField;
             outputField.getDropDownItem(This.outputFieldSelect.menuListItems);
@@ -751,11 +754,11 @@ thisEqualsThat.oop = function()
       bottomModelLinkFieldList.select.on("change", this.bottomModelLinkSelectChangeFunction);
     }
     this.display.bottomModelSelectDiv.html(bottomModelLinkFieldList.select);
-    console.log(choosableFields);
+    //console.log(choosableFields);
   }
   this.ModelInstance.prototype.bottomModelLinkSelectChangeFunction = function(event)
   { var bottomModelLinkField = $(event.currentTarget.selectedOptions[0]).data("bottomModelLinkField");
-    console.log(event, bottomModelLinkField);
+    //console.log(event, bottomModelLinkField);
     if (! bottomModelLinkField.hasOwnProperty("setBottomModelAjaxOptions"))
     { bottomModelLinkField.setBottomModelAjaxOptions =
       { url: "setBottomModel",
@@ -773,7 +776,7 @@ thisEqualsThat.oop = function()
     $.ajax(bottomModelLinkField.setBottomModelAjaxOptions);
   }
   this.ModelInstance.prototype.setBottomModelSuccessFunction = function(data, status, request)
-  { console.log(data, this);
+  { // console.log(data, this);
     topModelInstance = this.modelInstance;
     if (! topModelInstance.bottomModelHistory.hasOwnProperty(data.id))
     { var bottomModelInstance =
@@ -796,7 +799,7 @@ thisEqualsThat.oop = function()
 
     topModelInstance.display.topModelDiv.toggleClass("bottomModelReshuffle", true);
 
-    console.log(topModelInstance.bottomModelInstance);
+    //console.log(topModelInstance.bottomModelInstance);
   }
   this.ModelInstance.prototype.displayIntoTarget = function(targetContainer)
   { if (! this.hasOwnProperty("display"))
@@ -843,7 +846,7 @@ thisEqualsThat.oop = function()
                     [ [ ".panel-heading", ".panel-title.displayFlex.spaceBetween",
                         [ [ "div.visualisationSpinner",
                             [ [ $('<i class="material-icons">visibility</i>') ],
-                              [ ".chooseVisualisationField.smallCaps.color_visualTools" ],
+                              [ ".chooseVisualisationField.color_visualTools" ],
                             ],
                           ],
                           [ ".modelVisualisationValue.color_visualTools" ],
@@ -1290,6 +1293,7 @@ thisEqualsThat.oop = function()
                   easing: "easeInCubic",
                   progress: function(animation, progress, remainingMs) { //Animate Reference SVG
                     This.progress_translate3d(animation, progress, remainingMs, This);
+                    This.display.visualisationColumn.addClass('visualisationLoader');
                   },
                   complete: function()
                   {  This.svgHUD.renderHUD("preColor");
@@ -1297,8 +1301,9 @@ thisEqualsThat.oop = function()
                     This.inputFieldHUD.renderHUD("postColor");
                     This.svgHUD.renderHUD("postColor");
 
+                    console.log("animationQueue complete", This);
+                    console.log("animationQueue complete", This.display["visualisationColumn"]);
 
-                    console.log("animationQueue complete", This.ifa_queue[0]);
                     if (This.ifa_queue.length > 0)
                     { var ifa_item = This.ifa_queue.shift()
                       This.ifa_queueState = "ready";
@@ -1311,6 +1316,8 @@ thisEqualsThat.oop = function()
                     else
                     { This.ifa_queueState = "ready";
                       This.display.topModelDiv.find(".inputFieldAlteredSpinner").toggleClass("spinner", false);
+                      This.display.visualisationColumn.removeClass('visualisationLoader');
+                      console.log('animated');
                     }
                     This.display.topModelDiv.find(".visualisationSpinner").toggleClass("spinner", false);
 
@@ -1346,10 +1353,10 @@ thisEqualsThat.oop = function()
     svgClonableG.hide();
   }
   this.ModelInstance.prototype.svg_createSaveLink = function(This)
-  { if (This.disable_createSaveLink == true)
-      console.log("svg_createSaveLink disabled");
-    else
-    { console.log("svg_createSaveLink", This);
+  { if (This.disable_createSaveLink == true) {
+      //console.log("svg_createSaveLink disabled");
+  }  else
+    { //console.log("svg_createSaveLink", This);
 
       var savableContainerSVG = $(This.display.rootSVG).clone();
       savableContainerSVG
@@ -1389,7 +1396,7 @@ thisEqualsThat.oop = function()
   this.ModelInstance.prototype.displayCurrentOutput = function()
   { var outputField         = this.lastAlteredOutputField;
     var visualisationField  = this.lastAlteredVisualisationField;
-    console.log("displayCurrentOutput", this, outputField)
+  //  console.log("displayCurrentOutput", this, outputField)
 
 
 
@@ -1412,7 +1419,7 @@ thisEqualsThat.oop = function()
           //svgReferenceVisual.appendTo(This.display.svgReferenceG);
           //$(svgReferenceVisual).attr("transform", "scale(0.2)");
 
-          console.log("importSVG file", importedRootG);
+          //console.log("importSVG file", importedRootG);
           thisEqualsThat.svgStore[svgFileName]      = $(importedRootG);
           thisEqualsThat.svgDefsStore[svgFileName]  = $(importedDefs);
 
@@ -1601,10 +1608,10 @@ thisEqualsThat.oop = function()
         function(xml)
         {
               importedNode = document.importNode(xml.documentElement, true);
-              console.log("referenceVisual:" + referenceSVGData.fileHandle);//, importedNode);
+             //  console.log("referenceVisual:" + referenceSVGData.fileHandle);//, importedNode);
               var referenceRootG = $(importedNode).find("g").first();
               referenceVisualDefs.svgStore[referenceSVGData.fileHandle] = referenceRootG;
-              
+
               var referenceSVGSelectListItemSVG = $(document.createElementNS(d3.ns.prefix.svg, "svg"))
                   .attr("xmlns",        "http://www.w3.org/2000/svg")
                   .attr("xmlns:xlink",  "http://www.w3.org/1999/xlink")
@@ -1672,7 +1679,7 @@ thisEqualsThat.oop = function()
   this.InputFieldHUD.prototype.FieldOrder.prototype.display =function(orderDefinition, tagHook)
   { // html and behaviour a widget for a  colorPicker widhet. Use the code defined in the colorPickerData to run when the colorPicker exits.
     //    it defines code which generates CSS to change the colors of shit in a visualisation specific way.
-    console.log("FieldOrder", this.inputFieldHUD.modelInstance.inputFields);
+    //console.log("FieldOrder", this.inputFieldHUD.modelInstance.inputFields);
     var This    = this;
     var context = this.context;
 
@@ -1680,7 +1687,7 @@ thisEqualsThat.oop = function()
     { var elementList = [];
 
       for (orderItem of orderDefinition.orderList)
-      { console.log("  "+`["${orderItem.replace(", ", "\", \"")}"]`); //"
+      { //console.log("  "+`["${orderItem.replace(", ", "\", \"")}"]`); //"
         if (orderItem == "spacer")
         { elementList.push($(`<div class='inputFieldElement spacer' />`) );
         }
@@ -1717,7 +1724,7 @@ thisEqualsThat.oop = function()
 
     for (replaceConfigName in replaceDict)
     { var replaceConfig = replaceDict[replaceConfigName];
-      console.log(replaceConfig, replaceConfigName);
+      //console.log(replaceConfig, replaceConfigName);
 
       if (! This.context.hasOwnProperty(replaceConfigName) )
       { This.context[replaceConfigName] =
@@ -1978,9 +1985,9 @@ thisEqualsThat.oop = function()
       if ($.inArray(tagHook, hudTagHooks) >-1 )
       { this.plugins[hudComponent][tagHook](defaultDict[hudDescriptor], this.contextData[hudComponent]);
       }
-      
+
     }
-    
+
 
     var svg3dDisplayJSON  = this.modelInstance.svg3dDisplayJSON;
 
@@ -2085,17 +2092,17 @@ thisEqualsThat.oop = function()
     if (! ThisEqualsThat.referenceVisual.popoverCreated)
     { $(document).popover
       ( { "selector":   ".referenceSVGSelect.hudItem",
-          "container":  "body", 
-          "html":       true, 
-          "title":      "Choose reference visual", 
-          "content":    "<div class='referenceSVGSelectListContainer'>"+ThisEqualsThat.referenceVisual.svgSelectList.html()+"</div>", 
+          "container":  "body",
+          "html":       true,
+          "title":      "Choose reference visual",
+          "content":    "<div class='referenceSVGSelectListContainer'>"+ThisEqualsThat.referenceVisual.svgSelectList.html()+"</div>",
           "placement" : "bottom",
           "viewport":   { "selector": "."+modelInstance.id+" .svgDiv", "padding": "10px" },
           "trigger":    "click focus",
           //"template":   '<div class="popover referenceSVGSelectListPopover" role="tooltip"><div class="arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>'
 
           "template" :  '<div class="popover referenceSVGSelectListPopover" role="tooltip"><div class="popover-arrow"></div><h3 class="popover-title"></h3><div class="popover-content"></div></div>',
-        } 
+        }
       )
 
       $("body").on
@@ -2104,7 +2111,7 @@ thisEqualsThat.oop = function()
             { var selectedDiv     = $(clickEvent.currentTarget)
               var fileHandle      = selectedDiv.attr("thisequals_filehandle");
               var modelInstance   = ThisEqualsThat.modelInstanceFocus;
-              
+
               if (This.userSelectedReferenceSVG == fileHandle)
               { modelInstance.userSelectedReferenceSVG = "";
                 // $(this).find(".referenceSVGSelectListItem").toggleClass("userSelectedReferenceSVG_selected", false);
@@ -2116,9 +2123,9 @@ thisEqualsThat.oop = function()
               }
               selectedDiv.closest(".referenceSVGSelectListPopover").popover("hide");
               setImmediate
-              ( function() 
-                { modelInstance.inputFieldAltered.call(modelInstance); 
-                  delete modelInstance.display.referenceSVGSelect.data("bs.popover")._activeTrigger.click; 
+              ( function()
+                { modelInstance.inputFieldAltered.call(modelInstance);
+                  delete modelInstance.display.referenceSVGSelect.data("bs.popover")._activeTrigger.click;
                 }
               );
             }
@@ -2133,7 +2140,7 @@ thisEqualsThat.oop = function()
   { //do nothing... yet :)
   }
   this.SVGHUD.prototype.referenceSVGSelect.prototype.preClone = function(svgHUD, context)
-  { 
+  {
   }
 
   this.SVGHUD.prototype.toggleFeatures = function(svgHUD, context)
@@ -2185,7 +2192,7 @@ thisEqualsThat.oop = function()
   { //do nothing... yet :)
   }
   this.SVGHUD.prototype.toggleFeatures.prototype.preClone = function(svgHUD, context)
-  { 
+  {
   }
 
 
@@ -2197,7 +2204,7 @@ thisEqualsThat.oop = function()
     this.svgHUD.divForHUD.append(this.context.display);
   }
   this.SVGHUD.prototype.fillManager.prototype.display   = function()
-  { 
+  {
   }
   this.SVGHUD.prototype.fillManager.prototype.hide      = function()
   { if ( this.context.hasOwnProperty("display") )
@@ -2216,7 +2223,7 @@ thisEqualsThat.oop = function()
 
     for (fillManagerSelector in fillManagersDict)
     { var fillManagerData = fillManagersDict[fillManagerSelector];
-      console.log("fillManager", fillManagerSelector, fillManagerData);
+    //  console.log("fillManager", fillManagerSelector, fillManagerData);
 
       var selectorContext = null;
       if (! this.context.hasOwnProperty(fillManagerSelector) )
@@ -2265,7 +2272,7 @@ thisEqualsThat.oop = function()
       }
       else
       { localContext = selectorContext.byVisualisation[lastAlteredVisualisationField];
-        console.log("localContext", localContext);
+      //  console.log("localContext", localContext);
       }
 
       localContext.memoisedElements = {};
@@ -2474,7 +2481,7 @@ thisEqualsThat.oop = function()
       else
       { randomiseConfig = randomiseClonesDict[randomiseProperty];
       }
-      console.log(randomiseProperty, randomiseConfig);
+      //console.log(randomiseProperty, randomiseConfig);
 
       if (!contextByVisualisation[randomiseProperty] )
       { contextByVisualisation[randomiseProperty] =  randomiseConfig
@@ -2510,7 +2517,7 @@ thisEqualsThat.oop = function()
 
 
   this.ModelFieldInput = function(modelInstance, data)
-  { console.log(modelInstance, data);
+  { //console.log(modelInstance, data);
     this.modelInstance  = modelInstance;
     this.fullAddress    = data.fullAddress;
     this.simpleName     = this.fullAddress.replace(/[\[\]\",]/g, "");
@@ -2578,7 +2585,7 @@ thisEqualsThat.oop = function()
     // this.uiElement = this.display.inputFieldElement;
     O.create
     ( [ ".uiElement.inputFieldElement.inputField.displayFlex.spaceBetween.width100",
-        [ [ ".inputFieldLabel.floatLeft.smallCaps", "@"+fieldData.displayName ],
+        [ [ ".inputFieldLabel.floatLeft", "@"+fieldData.displayName ],
           [ ".slideAndValue",
             [ [ "select.uiValue_select.inputFieldSelect" ],
             ],
@@ -2634,8 +2641,8 @@ thisEqualsThat.oop = function()
     return this.uiElement;
   }
   this.ModelFieldInput.prototype.inputField_select_changeFunction = function(event)
-  { console.debug(this);
-    console.debug(event);
+  { //console.debug(this);
+    //console.debug(event);
     var This  = $(this).data("ModelInputField");
     This = event.data;
 
@@ -2647,7 +2654,7 @@ thisEqualsThat.oop = function()
   {   var fieldData = this.data;
       O.create
       ( [ ".uiElement.inputFieldElement.displayFlex.spaceBetween",
-          [ [ ".inputFieldLabel.smallCaps", "@"+fieldData.displayName],
+          [ [ ".inputFieldLabel", "@"+fieldData.displayName],
             [ "input.uiValue_text.inputFieldText"+".unit_"+this.data.unit ],
           ],
         ],
@@ -2683,7 +2690,7 @@ thisEqualsThat.oop = function()
   }
   this.ModelFieldInput.prototype.inputField_text_changeFunction = function(event)
   { var This  = $(this).data("thisEquals.modelField");
-    
+
     This.data.currentValue = $(this).val();
     setImmediate
     ( function()
@@ -2720,7 +2727,7 @@ thisEqualsThat.oop = function()
     return this.display.inputFieldElement;
   }
   this.ModelFieldInput.prototype.slider_linearSliderOptions = function()
-  { console.debug("linear");
+  { //console.debug("linear");
     var fieldData = this.data;
     var This = this;
     var sliderOptions =
@@ -2743,7 +2750,7 @@ thisEqualsThat.oop = function()
     return sliderOptions;
   }
   this.ModelFieldInput.prototype.slider_logSliderOptions  = function()
-  { console.debug("log");
+  { //console.debug("log");
     var fieldData = this.data;
     var max = fieldData.rangeTop
     var halfMax = max / 2;

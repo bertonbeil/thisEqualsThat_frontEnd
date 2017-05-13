@@ -152,7 +152,7 @@ function($)
       }
 
     }
-    if (depth == 0) console.log("create", toReturn);
+    if (depth == 0) console.debug("create", toReturn);
     return toReturn;
   }
 
@@ -261,6 +261,22 @@ function($)
               [ ".list-group-item-text"     , text            ]
             ],
           ],
+        ],
+      ],
+      passThrough,
+      appendTo
+    );
+
+    return toReturn;
+  }
+
+// link with icon and text
+  this.iconLink =
+  function(passThrough, appendTo, icon, linkText)
+  { var toReturn = O.create
+    ( [
+        [ [ icon ],
+          [ "span", linkText ]
         ],
       ],
       passThrough,
@@ -478,10 +494,10 @@ function($)
 
   this.tooltip =
   function(passThrough, appendTo, tooltipPrependList, tooltipContents, tooltipOptions)
-  { var toReturn = 
+  { var toReturn =
     O.create
     ( [ tooltipPrependList+"",
-        [ [ $("<a href=='#' class='tooltip' data-toggle='tooltip' title='"+tooltipContents+"' />"), 
+        [ [ $("<a href=='#' class='tooltip' data-toggle='tooltip' title='"+tooltipContents+"' />"),
           ],
         ],
       ],
