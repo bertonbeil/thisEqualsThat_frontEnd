@@ -907,14 +907,21 @@ thisEqualsThat.oop = function()
 
       display.modelInstanceDiv.data("thisEquals_modelInstance", this);
 
+      function filterSelectPanel(panelElem) {
+        var amount = $(panelElem).find('button').length;
+        if (amount < 2) $(panelElem).hide();
+      }
+      filterSelectPanel(display.outputFieldSelectPanel);
+      filterSelectPanel(display.visualisationFieldSelectPanel);
+
       display.calculationPanel.on
       ( "click",
         ".panel-title",
         function()
-        { display.outputFieldSelectPanel.find("a").first().click();
+        {
+          display.outputFieldSelectPanel.find("a").first().click();
         }
       );
-
       display.modelSliders.on
       (   "focusin", "input.inputFieldText",
           function()
@@ -970,6 +977,7 @@ thisEqualsThat.oop = function()
       // display.svgTextDescription.text("Hello World");
       // display.svgTextInput.on("change", function() { display.svgTextDescription.text($(this).val()); This.svg_createSaveLink(This);});
     }
+
 
     this.display.editableTextPlaceholder
         .editable
