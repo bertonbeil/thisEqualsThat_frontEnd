@@ -1764,7 +1764,7 @@ thisEqualsThat.oop = function()
           $(` <div class='ratioColorTotal'>
                 <div class='inputFieldElement total'          />
                 <div class='ratioColorList'     />
-                <div class='inputFieldElement addRatio hudItem fa fa-plus-circle'       />
+                <i class="inputFieldElement addRatio hudItem material-icons">add_box</i>
               </div>
             `);
       inputFieldHUD.modelInstance.display.modelSliders.prepend(container);
@@ -1839,7 +1839,7 @@ thisEqualsThat.oop = function()
                       <input  class='percentageSpinner' type='number' min='0' max='100' step='0.1' value ='${initialRatio * 100}' />
                       <div    class="textLabel percentLabel">%</div>
                       <input  class='spectrumColorPickerInput' value='${initialColor.toString("rgb")}' />
-                      <span   class="closeBox    fa fa-times-circle" />
+                      <i      class="closeBox material-icons">close</i>
                     </div>
                   `
                  );
@@ -2715,11 +2715,8 @@ thisEqualsThat.oop = function()
     O.create
     ( [ ".inputFieldElement.inputField.displayInlineBlock.width100",
         [ [ ".inputFieldLabel.floatLeft", "@"+this.data.displayName ],
-          [ ".slideAndValue",
-            [ [ $("<input type='text' class='uiValue_slider inputFieldText' />"), ],
-              [ ".uiSlider.inputFieldSlider", ],
-            ],
-          ],
+          [ $("<input type='text' class='uiValue_slider inputFieldText' />") ],
+          [ ".uiSlider.inputFieldSlider" ],
         ],
       ],
       traverse(this, "display"),
