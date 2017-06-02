@@ -158,25 +158,21 @@ thisEqualsThat.oop = function()
   }
 
   this.mainNavigation = function(navbar)
-  { O.create( [ ".bs-component.navigation",
+  { O.create( [ ".bs-component",
                 [
                   [ O.openModal_aTag
                     ( navbar, null, "profileModal",
                         ".createConstruct.row",
-                        O.iconLink ( navbar,
-                                     null,
-                                     $('<i class="material-icons">account_circle</i>'), "@Profile"
-                                   )[0]
+                        O.listGroupItem ( navbar,
+                                          null,
+                                          "button", ".blueprintItem profileBtn", [12, 12, 6, 6], $('<i class="material-icons">account_circle</i>'), "", "@Profile", ""
+                                        )[0]
                     )
                   ],
                   // [ ".square92.marginAuto", ".editProfile.panel.row"       ],
                   [ O.openModal_aTag
                     ( navbar, null, "constructBlueprint",
                         ".createConstruct.row",
-                        O.iconLink ( navbar,
-                                      null,
-                                      $('<i class="material-icons">view_comfy</i>'), "@Construct"
-                                    )[0]
                         O.listGroupItem ( navbar,
                                           null,
                                           "button", ".blueprintItem constructBtn", [12, 12, 6, 6], $('<i class="material-icons">view_comfy</i>'), "", "@Blueprints", ""
@@ -570,7 +566,6 @@ thisEqualsThat.oop = function()
         function(fieldNameString, value)
         { value['fullAddress'] = fieldNameString
           if (value['inputField'] == true)
-          { console.debug("modelInstance: inputField: ", This, value);
           { //console.log("modelInstance: inputField: ", This, value);
             value['currentValue'] = This.data.fieldValues[fieldNameString]
             var inputField = new ThisEqualsThat.ModelFieldInput(This, value);
@@ -628,7 +623,6 @@ thisEqualsThat.oop = function()
         this.data.fields,
         function(index, value)
         { if (value["outputField"] == true)
-          { console.debug("modelInstance: outputField: ", This, value);
           { //console.log("modelInstance: outputField: ", This, value);
             var outputField = new ThisEqualsThat.ModelFieldOutput(This, value);
             This.outputFieldData[value.toString()] = outputField;
@@ -639,6 +633,7 @@ thisEqualsThat.oop = function()
     }
     return this;
   }
+
 
   this.ModelInstance.prototype.getVisualisationFields = function(appendTo)
   { if (! this.hasOwnProperty("visualisationFieldData"))
@@ -904,6 +899,7 @@ thisEqualsThat.oop = function()
     $.ajax(bottomModelLinkField.setBottomModelAjaxOptions);
   }
   this.ModelInstance.prototype.setBottomModelSuccessFunction = function(data, status, request)
+  {
     topModelInstance = this.modelInstance;
     if (! topModelInstance.bottomModelHistory.hasOwnProperty(data.id))
     { var bottomModelInstance =
