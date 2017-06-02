@@ -92,6 +92,9 @@ a.createConstruct
 .opacityZero
 { opacity: 0.0;
 }
+.opacityPoint4
+{ opacity: 0.4;
+}
 
 .fullHeight, .height100
 { height:   100%;
@@ -306,6 +309,13 @@ a.createConstruct
 
   margin:               auto auto !important;
 }
+.centerBackgroundImage_circle
+{ border-radius: 50% 50%;
+
+  background-size:      50%;
+  background-repeat:    no-repeat;
+  background-position:  center; 
+}
 .visualToolsLogo
 { background-image:     url(/static/graphics/visualTools/visual.tools.logo.png);
 
@@ -323,9 +333,31 @@ a.createConstruct
 .visualToolsEye
 { background-image:     url(/static/graphics/visualTools/visual.tools.eye.png);
 
-  min-height: 16px;
-  min-width: 16px;
-  max-width: 200px;
+  min-height:           16px;
+  min-width:            16px;
+  max-width:            200px;
+}
+
+.visualToolsInfogram
+{ background-image:     url(/static/graphics/visualTools/infogram.svg);
+  
+  min-height:           16px;
+  min-width:            16px;
+  max-width:            200px;
+}
+.visualToolsSave
+{ background-image:     url(/static/graphics/visualTools/save.svg);
+
+  min-height:           16px;
+  min-width:            16px;
+  max-width:            200px;
+}
+.visualToolsShare
+{ background-image:     url(/static/graphics/visualTools/share.svg);
+
+  min-height:           16px;
+  min-width:            16px;
+  max-width:            200px;
 }
 
 .profilePic
@@ -510,6 +542,36 @@ a.collapseControl .material-icons
 { opacity: 0.2;
 }
 
+#wholePageDisableSpinner
+{ background: rgba(0,0,0,0.6);
+  z-index:  99999999;
+
+  display:  flex;
+  justify-content: center space-around;
+  align-items: center;
+  align-content: center;
+}
+#uploadPercentageDiv
+{ display: flex;
+
+  justify-content: center space-around;
+  align-items: center;
+  align-content: center;
+
+  width: 50%;
+  min-width: 180px;
+
+  height: 50%;
+  min-height: 64px;
+
+  border-radius: 50%;
+
+  background-color: rgba(14, 75, 80, 1.0);
+
+  text-align: center;
+  font-size: 48px;
+}
+
 .mainNav .navbar
 { align-items: flex-start;
 }
@@ -691,27 +753,20 @@ svg.rootSVG
 }
 
 
-.svgSaveLink
+.shareMenu
 { position: absolute;
   top: 5px;
   right: 16px;
-  border-radius: 50%;
+
+  display: flex;
+}
+.shareMenu > div 
+{ border-radius: 50%;
   width: 42px;
   height: 42px;
   box-shadow: 0 1px 1.5px 0 rgba(0, 0, 0, 0.12), 0 1px 1px 0 rgba(0, 0, 0, 0.24);
 }
-.svgSaveLink > a
-{ position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  padding: 8px;
-}
-.svgSaveLink > a > i
-{ color: #FAFAFA;
-  font-size: 26px;
-}
+
 
 .referenceSVGSelect.btn
 { background-image: url(/static/graphics/thisEquals/icons/visualisation.svg);

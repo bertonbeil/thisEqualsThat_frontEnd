@@ -52,12 +52,15 @@ standardPrecision = function(number)
 }
 
 thisEqualsThat.oop = function()
-{ this.init = function()
+{ this.regex = {};
+
+  this.init = function()
   { ThisEqualsThat.componentCookieManager = new ThisEqualsThat.ComponentCookieManager(this);
     ThisEqualsThat.modelClasses           = new ThisEqualsThat.ModelClasses(this);
 
     ThisEqualsThat.display                = $("body");
     ThisEqualsThat.welcome                = new ThisEqualsThat.Welcome(ThisEqualsThat.display);
+    ThisEqualsThat.history                = new ThisEqualsThat.History();
   }
 
   this.Welcome = function(display)
@@ -68,6 +71,25 @@ thisEqualsThat.oop = function()
               display,
               display
             );
+  }
+
+  this.History = function()
+  { var This = this;
+    window.onpopstate = function(event)
+    { console.log(event);
+
+      ThisEqualsThat.loadingInfogramByID = false;
+
+      var modelClassName  = event.state.modelClass;
+
+      var modelClass      = ThisEqualsThat.modelClasses[modelClassName];
+      var modelInstance   = modelClass.getModelInstance(ThisEqualsThat.scene.constructContainer);
+      ThisEqualsThat.scene.setCurrentModelClass(modelClass);
+
+      ThisEqualsThat.redirectDisplayFromURL(window.location.pathname, event.state)
+
+      modelInstance.inputFieldAltered_processServerData(modelInstance, event.state);
+    }
   }
 
   this.displayInterface = function(display)
@@ -83,6 +105,8 @@ thisEqualsThat.oop = function()
               display
             );
     O.create( [ "#doubleBuffer", "#modals" ], display, display );
+    O.create( [ "#wholePageDisableSpinner.fullScreenOverlay.smoothMove.displayNone" ], display, display );
+    O.create( [ "#uploadPercentageDiv.displayNone", "#uploadPercentText" ] , display, display);
 
     this.mainNavigation                   (display.navbar);
     this.constructBlueprint               (display.modals);
@@ -92,7 +116,46 @@ thisEqualsThat.oop = function()
 
     ThisEqualsThat.referenceVisual  = new ThisEqualsThat.ReferenceVisual    ( display.doubleBuffer);
     ThisEqualsThat.scene            = new ThisEqualsThat.ThisEqualsThatScene( display.navbar.thisEqualsThatScene );
+
+    this.redirectDisplayFromURL(window.location.pathname);
   };
+
+  this.redirectDisplayFromURL = function(url, state)
+  { var regex = {};
+    regex.blueprint = /^\/blueprint\/([^/]*)/;
+    regex.infogram  = /^\/infogram\/([^/]*)$/;
+
+    var match = null;
+    for (key in regex)
+    { match = url.match(regex[key]);
+      if ( match )
+        this.redirectDisplayFromURL[key](match, state)
+    }
+  }
+  this.redirectDisplayFromURL.blueprint = function(match, state)
+  { var modelClassName = match[1];
+    var modelClassAlternateMaps =
+        { "HowMuch":      "VolMassDen",
+
+          "Particulate":  "Particle",
+
+          "Ratio":        "PeopleRatioPlay",
+          "Percentage":   "PeopleRatioPlay",
+        }
+    if ( modelClassAlternateMaps.hasOwnProperty(modelClassName) )
+    { modelClassName = modelClassAlternateMaps[modelClassName];
+    }
+    var modelClass = ThisEqualsThat.modelClasses[modelClassName];
+    modelClass.getModelInstance(ThisEqualsThat.scene.constructContainer);
+    ThisEqualsThat.scene.setCurrentModelClass(modelClass);
+  }
+  this.redirectDisplayFromURL.infogram = function(match, state)
+  { var infogramID = match[1];
+    ThisEqualsThat.loadingInfogramByID = "loading";
+    if (! state)
+    { ThisEqualsThat.getInfogramByID(infogramID, ThisEqualsThat.scene.constructContainer);
+    }
+  }
 
   this.mainNavigation = function(navbar)
   { O.create( [ ".bs-component.navigation",
@@ -114,6 +177,10 @@ thisEqualsThat.oop = function()
                                       null,
                                       $('<i class="material-icons">view_comfy</i>'), "@Construct"
                                     )[0]
+                        O.listGroupItem ( navbar,
+                                          null,
+                                          "button", ".blueprintItem constructBtn", [12, 12, 6, 6], $('<i class="material-icons">view_comfy</i>'), "", "@Blueprints", ""
+                                        )[0]
                     )
                   ],
                                         // ".createConstructImage.square92") ],this.
@@ -160,7 +227,7 @@ thisEqualsThat.oop = function()
               modals["modal-content"]
             );
 
-    var modelClassOrder = [ "HowMany", "VolMassDen", "LightBulb", "CO2", "Wood", "Coal", "PeopleRatioPlay", "Earth", "Money", "Air Quality", "Seesaw"];
+    var modelClassOrder = [ "VolMassDen", "HowMany",  "PeopleRatioPlay", "Money", "Particle", "LightBulb", "CO2", "Wood", "Coal", "Seesaw", ];
     var modelClassData  = { "HowMany"     : { "tutorialVideo": "je_M6gB8nZw" } ,
                             "VolMassDen"  : { "tutorialVideo": "z0LKAOowf9c" } ,
                             "LightBulb"   : { "tutorialVideo": "NnUqU9_hrrg" } ,
@@ -206,11 +273,12 @@ thisEqualsThat.oop = function()
           });
 
           modelClass.getModelInstance(ThisEqualsThat.scene.constructContainer);
+          window.history.pushState(null, "", "/blueprint/"+modelClass.name)
           ThisEqualsThat.scene.setCurrentModelClass(modelClass);
           setTimeout(function() {
               $('.constructBlueprint.modal').modal('hide');
               $('.modal svg').remove();
-          }, 500);
+          }, 200);
         }
       );
 
@@ -312,6 +380,10 @@ thisEqualsThat.oop = function()
     { this.currentModelClass.modelInstance.hide();
     }
     this.currentModelClass = modelClass;
+
+    //store state to be able to reload from infogram
+    //window.history.pushState(null, "", "/blueprint/"+modelClass.name);
+    ga('send', 'pageview', "/blueprint/"+modelClass.name);
   }
 
 
@@ -319,7 +391,7 @@ thisEqualsThat.oop = function()
   { var This = this;
 
     var ajaxOptions =
-    { url: "getModelClasses",
+    { url: "/getModelClasses",
       dataType: "json",
       success: function(data, status, request)
       { $.each(data.standard,
@@ -379,7 +451,7 @@ thisEqualsThat.oop = function()
   { if (! this.hasOwnProperty("modelInstance"))
     { var This = this;
       var ajaxOptions =
-      { url: "getClassInstance",
+      { url: "/getClassInstance",
         data: { modelClassName: this.name},
         success: function(data, status, request)
         { console.log("getInstance:", ajaxOptions);
@@ -399,12 +471,41 @@ thisEqualsThat.oop = function()
       $.ajax(ajaxOptions);
     }
     else
-    { if (displayContainer == null) return this.modelInstance;
-
-      this.modelInstance.displayIntoTarget(displayContainer);
+    { if (displayContainer != null)
+        this.modelInstance.displayIntoTarget(displayContainer);
+      return this.modelInstance;
     }
   }
 
+  this.getInfogramByID = function(infogramID, displayContainer)
+  { var This = this;
+    var ajaxOptions =
+    { "method": "POST",
+      "url": "/getInfogramByID",
+      "data": { infogramID: infogramID},
+      success: function(data, status, request)
+      { console.log("getInfogram:", infogramID, data);
+
+        var modelClass              = ThisEqualsThat.modelClasses[data[0].modelClass]
+        var modelInstance           =  modelClass.modelInstance = new ThisEqualsThat.ModelInstance(modelClass, data[0]);
+        modelInstance.modelPosition = "top";
+        modelInstance.displayIntoTarget(displayContainer);
+
+        modelInstance.inputFieldAltered({});
+
+        // modelInstance.inputFieldAltered_processServerData
+        //     ( modelInstance,      // "this" reference
+        //       data, null, null,   // ajax callback spoof
+        //       function(data, status, request) //success function
+        //       { modelInstance.setChoosableFields(data);
+        //       }
+        //     );
+
+        //TODO: possibly deal with setting bottom model instance stuff?
+      }
+    }
+    $.ajax(ajaxOptions);
+  }
 
   this.ModelClass_iframe = function(modelClassData)
   { this.name     = modelClassData.name || modelClassData.jsonKey;
@@ -470,6 +571,7 @@ thisEqualsThat.oop = function()
         { value['fullAddress'] = fieldNameString
           if (value['inputField'] == true)
           { console.debug("modelInstance: inputField: ", This, value);
+          { //console.log("modelInstance: inputField: ", This, value);
             value['currentValue'] = This.data.fieldValues[fieldNameString]
             var inputField = new ThisEqualsThat.ModelFieldInput(This, value);
             This.inputFieldData[fieldNameString] = inputField;
@@ -527,6 +629,7 @@ thisEqualsThat.oop = function()
         function(index, value)
         { if (value["outputField"] == true)
           { console.debug("modelInstance: outputField: ", This, value);
+          { //console.log("modelInstance: outputField: ", This, value);
             var outputField = new ThisEqualsThat.ModelFieldOutput(This, value);
             This.outputFieldData[value.toString()] = outputField;
             outputField.getDropDownItem(This.outputFieldSelect.menuListItems);
@@ -582,7 +685,7 @@ thisEqualsThat.oop = function()
         this.data.fields,
         function(index, value)
         { if (value["visualisationField"] == true)
-          { console.log("modelInstance: visualisationField: ", This, value);
+          { //console.log("modelInstance: visualisationField: ", This, value);
             var visualisationField = new ThisEqualsThat.ModelFieldVisualisation(This, value);
             This.visualisationFieldData[value.toString()] = visualisationField;
             visualisationField.getDropDownItem(This.visualisationFieldSelect.menuListItems);
@@ -638,52 +741,24 @@ thisEqualsThat.oop = function()
     if (this.ifa_queueState == "ready")
     { this.ifa_currentlyProcessing = arguments;
       this.ifa_queueState = "Sending Request";
-       this.display.topModelDiv.find(".inputFieldAlteredSpinner").toggleClass("spinner", true);
-       this.display.topModelDiv.find(".calculationSpinner").toggleClass("spinner", true);
+      this.display.topModelDiv.find(".inputFieldAlteredSpinner").toggleClass("spinner", true);
+      this.display.topModelDiv.find(".calculationSpinner").toggleClass("spinner", true);
+      this.display.topModelDiv.find(".inputFieldAlteredSpinner").toggleClass("spinner", true);
+      this.display.topModelDiv.find(".calculationSpinner").toggleClass("spinner", true);
 
       var This = this;
       fieldChangeData	= $.extend({modelInstanceID: this.id}, fieldChangeData);
       var ajaxOptions =
-        { "url": "inputFieldAltered",
+        { "url": "/inputFieldAltered",
           "dataType": "json",
           "data": fieldChangeData,
           "success": function (data, status, request)
-          { console.log(data);
-            This.svg3dDisplayJSON   = data.svg3dDisplayJSON;
-
-            // This.lastAlteredOutputField.data.currentValue = data.newValue;
-            // This.lastAlteredVisualisationField.data.currentValue = data.svg3dDisplayJSON.svgFieldValue;
-
-            // changed data. Now it has all the values of all the fields in it. Going to try to update the UI accordingly
-            for (var fieldName in data.fieldValues)
-            { if (This.inputFields.hasOwnProperty(fieldName) )
-              { var inputField  = This.inputFields[fieldName];
-                var newValue    = data.fieldValues[fieldName];item.replace(/\./g, " ")
-
-                if (newValue != inputField.data.currentValue)
-                { inputField.setValue(newValue);
-                }
-              }
-              //catch (e)
-              //{}
-            }
-
-
-            if (! This.doNotUpdateUI) This.displayCurrentOutput()
-            if (    This.bottomModelInstance && data.bottomModelData
-                &&  This.bottomModelInstance.lastAlteredOutputField && This.bottomModelInstance.lastAlteredOutputField.data)
-            { This.bottomModelInstance.lastAlteredOutputField.data.currentValue = data.bottomModelData.newValue
-              This.bottomModelInstance.lastAlteredVisualisationField.data.currentValue = data.bottomModelData.svg3dDisplayJSON.svgFieldValue;
-              This.bottomModelInstance.svg3dDisplayJSON = data.bottomModelData.svg3dDisplayJSON
-              if (! This.doNotUpdateUI) This.bottomModelInstance.displayCurrentOutput()
-            }
-
-            if (successFunction)
-              successFunction(data, status, request);
-
+          { var ThisModelInstance = This;
+            // window.history.pushState(data, "", "/blueprint/"+ThisModelInstance.modelClass.name+"/"+data.lastAlteredOutput[0]+"="+data.lastAlteredOutputValue);
+            ThisModelInstance.inputFieldAltered_processServerData(ThisModelInstance, data, status, request, successFunction, doNotUpdateUI);
           },
           "complete": function()
-          { console.log("ajax complete", This.ifa_queue[0]);
+          { //console.log("ajax complete", This.ifa_queue[0]);
 
             This.ifa_queueState = "receivedResponse";
 
@@ -711,13 +786,61 @@ thisEqualsThat.oop = function()
             }
           },
         };
-      console.log(ajaxOptions);
+      console.log("inputFieldAltered, ajaxOptions:", ajaxOptions);
       $.ajax(ajaxOptions);
     }
     else
-    { console.log("pushing to queue", this.ifa_queue[0], arguments);
+    { //console.("pushing to queue", this.ifa_queue[0], arguments);
       this.ifa_queue.push(arguments);
     }
+  }
+  this.ModelInstance.prototype.inputFieldAltered_processServerData = function(ThisModelInstance, data, status, request, successFunction, doNotUpdateUI)
+  { console.log("inputFieldAltered_processServerData:", data);
+
+    ThisModelInstance.svg3dDisplayJSON   = data.svg3dDisplayJSON;
+
+    if (! ThisEqualsThat.loadingInfogramByID)
+    { window.history.replaceState(data, "", "/blueprint/"+ThisModelInstance.modelClass.name);
+    }
+    else if (ThisEqualsThat.loadingInfogramByID == "loading")
+    { ThisEqualsThat.loadingInfogramByID = "loaded"
+      window.history.replaceState(data, "", window.location.pathname);
+    }
+    else if (ThisEqualsThat.loadingInfogramByID == "loaded")
+    { window.history.pushState(data, "", "/blueprint/"+ThisModelInstance.modelClass.name);
+      ThisEqualsThat.loadingInfogramByID = false;
+    }
+
+    // ThisModelInstance.lastAlteredOutputField.data.currentValue = data.newValue;
+    // ThisModelInstance.lastAlteredVisualisationField.data.currentValue = data.svg3dDisplayJSON.svgFieldValue;
+
+    // changed data. Now it has all the values of all the fields in it. Going to try to update the UI accordingly
+    for (var fieldName in data.fieldValues)
+    { if (ThisModelInstance.inputFields.hasOwnProperty(fieldName) )
+      { var inputField  = ThisModelInstance.inputFields[fieldName];
+        var newValue    = data.fieldValues[fieldName];
+
+        // console.log("setting "+fieldName+" to "+newValue);
+        // if (newValue != inputField.data.currentValue)
+        { inputField.setValue(newValue);
+        }
+      }
+      //catch (e)
+      //{}
+    }
+
+
+    if (! ThisModelInstance.doNotUpdateUI) ThisModelInstance.displayCurrentOutput()
+    if (    ThisModelInstance.bottomModelInstance && data.bottomModelData
+        &&  ThisModelInstance.bottomModelInstance.lastAlteredOutputField && ThisModelInstance.bottomModelInstance.lastAlteredOutputField.data)
+    { ThisModelInstance.bottomModelInstance.lastAlteredOutputField.data.currentValue = data.bottomModelData.newValue
+      ThisModelInstance.bottomModelInstance.lastAlteredVisualisationField.data.currentValue = data.bottomModelData.svg3dDisplayJSON.svgFieldValue;
+      ThisModelInstance.bottomModelInstance.svg3dDisplayJSON = data.bottomModelData.svg3dDisplayJSON
+      if (! ThisModelInstance.doNotUpdateUI) ThisModelInstance.bottomModelInstance.displayCurrentOutput()
+    }
+
+    if (successFunction)
+      successFunction(data, status, request);
   }
   this.ModelInstance.prototype.setChoosableFields = function(data, status, response)
   {
@@ -759,9 +882,14 @@ thisEqualsThat.oop = function()
   this.ModelInstance.prototype.bottomModelLinkSelectChangeFunction = function(event)
   { var bottomModelLinkField = $(event.currentTarget.selectedOptions[0]).data("bottomModelLinkField");
     //console.log(event, bottomModelLinkField);
+    //console.(choosableFields);
+  }
+  this.ModelInstance.prototype.bottomModelLinkSelectChangeFunction = function(event)
+  { var bottomModelLinkField = $(event.currentTarget.selectedOptions[0]).data("bottomModelLinkField");
+    //console.(event, bottomModelLinkField);
     if (! bottomModelLinkField.hasOwnProperty("setBottomModelAjaxOptions"))
     { bottomModelLinkField.setBottomModelAjaxOptions =
-      { url: "setBottomModel",
+      { url: "/setBottomModel",
         dataType: "json",
         data:
           { topModelID: bottomModelLinkField.modelInstance.id,
@@ -776,7 +904,6 @@ thisEqualsThat.oop = function()
     $.ajax(bottomModelLinkField.setBottomModelAjaxOptions);
   }
   this.ModelInstance.prototype.setBottomModelSuccessFunction = function(data, status, request)
-  { // console.log(data, this);
     topModelInstance = this.modelInstance;
     if (! topModelInstance.bottomModelHistory.hasOwnProperty(data.id))
     { var bottomModelInstance =
@@ -798,12 +925,11 @@ thisEqualsThat.oop = function()
           );
 
     topModelInstance.display.topModelDiv.toggleClass("bottomModelReshuffle", true);
-
-    //console.log(topModelInstance.bottomModelInstance);
   }
   this.ModelInstance.prototype.displayIntoTarget = function(targetContainer)
   { if (! this.hasOwnProperty("display"))
-    { This = this;
+    { var This = this;
+      var ThisModelInstance = this;
       this.display = {};
       var display = this.display;
 
@@ -877,7 +1003,11 @@ thisEqualsThat.oop = function()
                               ],
                               // [ ".toggleFeatures" ,
                               // ],
-                              [ ".svgSaveLink.bg_visualTools" ,
+                              [ ".shareMenu",
+                                [ [ ".saveInfogram.visualToolsInfogram.centerBackgroundImage_circle.btn"],
+                                  [ ".saveSVG_local.visualToolsSave.centerBackgroundImage_circle.btn", ],
+                                  [ ".saveSVG.visualToolsShare.centerBackgroundImage_circle.btn", ],
+                                ],
                               ],
                               [ "a.editableTextPlaceholder", "@Click to Enter Text",
                               ],
@@ -974,10 +1104,36 @@ thisEqualsThat.oop = function()
         { e.stopPropagation();
         }
       );
+
+      display.saveInfogram
+      .on
+      ( "click",
+        function()
+        { //console.("saveInfogram");
+          ThisModelInstance.saveInfogram(ThisModelInstance);
+        }
+      );
+
+      display.saveSVG_local
+      .on
+      ( "click",
+        function()
+        { //console.("saveInfogram");
+          ThisModelInstance.saveSVG_local(ThisModelInstance);
+        }
+      );
+
+      display.saveSVG
+      .on
+      ( "click",
+        function()
+        { //console.("saveInfogram");
+          ThisModelInstance.saveSVG(ThisModelInstance);
+        }
+      );
       // display.svgTextDescription.text("Hello World");
       // display.svgTextInput.on("change", function() { display.svgTextDescription.text($(this).val()); This.svg_createSaveLink(This);});
     }
-
 
     this.display.editableTextPlaceholder
         .editable
@@ -1018,6 +1174,8 @@ thisEqualsThat.oop = function()
     )
 
     this.display.modelInstanceDiv.show();
+    // window.history.replaceState({}, "", "/blueprint/"+this.modelClass.name);
+    window.document.title = this.modelClass.name+" - "+this.display.svgTextDescription.text();
 
     return this;
   }
@@ -1374,15 +1532,146 @@ thisEqualsThat.oop = function()
       var removeTheseAttributes = ["xmlns:xlink", "xmlns:z", "z:xInfinite", "z:yInfinite", "z:zRatio"];
       for (attributeToRemove  of removeTheseAttributes)
       { savableContainerSVG.removeAttr(attributeToRemove)
+  this.ModelInstance.prototype.saveInfogram = function(This)
+  { var This = this;
+
+    ThisEqualsThat.display.wholePageDisableSpinner.toggleClass("displayNone", false);;
+
+    var ajaxOptions =
+    { "method": "POST",
+      "url":    "/saveInfogram",
+      "data":   { "modelInstanceUUID": This.id},
+      success: function(data, status, request)
+      { console.log("saveInfogram:", data);
+
+        window.open(data.infogramURL, "_blank");
+        ThisEqualsThat.display.wholePageDisableSpinner.toggleClass("displayNone", true);;
+
+      }
+    }
+
+    $.ajax(ajaxOptions);
+  }
+  this.regex.onlySimpleCharacters = /[^A-Za-z0-9_-]/g
+  this.regex.oSC = function(stringToMakeSimple)
+  { return stringToMakeSimple.replace(ThisEqualsThat.regex.onlySimpleCharacters, "_");
+  }
+  this.ModelInstance.prototype.getSVGAsString = function(This)
+  { var This = this;
+
+    var svgString =   This.display.rootSVG[0].outerHTML
+
+    // savableContainerSVG
+    //     .attr("width",          This.display.rootSVG.css("width"))
+    //     .attr("height",         This.display.rootSVG.css("height"))
+    // ;
+    var removeTheseAttributes = ["xmlns:xlink", "xmlns:z", "z:xInfinite", "z:yInfinite", "z:zRatio"];
+    for (attributeToRemove  of removeTheseAttributes)
+    { svgString = svgString.replace(new RegExp(attributeToRemove+".*?\".*?\""), "");
+    }
+
+    regex_zThreeD             = /z:threeD=\"true\"/g;
+    var removeTheseStrings    = [regex_zThreeD];
+    for (stringToRemove of removeTheseStrings)
+    { svgString = svgString.replace(stringToRemove, "");
+    }
+
+    var svgFilename =
+        ThisEqualsThat.regex.oSC
+        ( This.display.svgTextDescription.text() + "___" + This.lastAlteredOutputField.fullAddress + "__" + This.display.modelOutputValue.text()
+        );
+
+    return { "svgString": svgString, "svgFilename": svgFilename };
+  }
+  this.ModelInstance.prototype.saveSVG_local= function(This)
+  {
+    ThisEqualsThat.display.wholePageDisableSpinner.toggleClass("displayNone", false);
+
+    svgData = This.getSVGAsString(This);
+
+    svgData.downloadLink          = window.document.createElement('a');
+    svgData.svgBlob               = new Blob( [ svgData.svgString ], {'type': 'image/svg+xml'} );
+    svgData.downloadLink.href     = window.URL.createObjectURL( svgData.svgBlob );
+    svgData.downloadLink.download = svgData.svgFilename+".svg";
+
+    // Append anchor to body.
+    document.body.appendChild(svgData.downloadLink)
+    svgData.downloadLink.click();
+    ThisEqualsThat.display.wholePageDisableSpinner.toggleClass("displayNone", true);
+
+    // Remove anchor from body
+    document.body.removeChild(svgData.downloadLink);
+    svgData.svgBlob.close();
+    svgData.svgString = "";
+
+    console.log("saveSVG, ajaxOptions:", ajaxOptions);
+  }
+  this.ModelInstance.prototype.saveSVG= function(This)
+  { ThisEqualsThat.display.pageWrapper.toggleClass("opacityPoint4", true);
+    ThisEqualsThat.display.wholePageDisableSpinner.toggleClass("displayNone", false);
+    ThisEqualsThat.display.uploadPercentageDiv.appendTo(ThisEqualsThat.display.wholePageDisableSpinner);
+    ThisEqualsThat.display.uploadPercentText.text(standardPrecision(0));
+
+    debugger;
+
+    svgData                       = This.getSVGAsString(This);
+
+    svgData.saveSVGFormData       = new FormData();
+    svgData.saveSVGFormData.append("svg", svgData.svgString);
+
+    var ajaxOptions =
+    { "method":       "POST",
+      "url":          "/saveSVG",
+      "processData":  false,
+      "contextType":  false,
+      "headers":      { "X-VisualTools-SvgFilename": svgData.svgFilename,
+                      },
+      "data":         svgData.saveSVGFormData,
+      "success": function(data, status, request)
+      { console.log("saveSVG:", data);
+
+        ThisEqualsThat.display.pageWrapper.toggleClass("opacityPoint4", false);
+        ThisEqualsThat.display.wholePageDisableSpinner.toggleClass("displayNone", true);
+        ThisEqualsThat.display.uploadPercentageDiv.remove();
+        ThisEqualsThat.display.uploadPercentText.text("");
+
+        window.open(data.svgURL, "_blank");
+      },
+      "xhr": function ()
+      { var xhr = new window.XMLHttpRequest();
+
+        xhr.upload.addEventListener
+            ( "progress",
+              function(evt)
+              { debugger;
+
+                if (evt.lengthComputable)
+                { var percentageComplete = evt.loaded / evt.total * 100;
+
+                  ThisEqualsThat.display.uploadPercentText.text(standardPrecision(percentageComplete));
+                }
+              },
+              false
+            );
+
+        return xhr;
       }
 
+    }
+    console.log("saveSVG, ajaxOptions:", ajaxOptions);
+    $.ajax(ajaxOptions);
+  }
+  this.ModelInstance.prototype.svg_createSaveLink = function(This)
+  { //THIS IS COMPLETELY STUPID. SHOULD ONLY BE DONE WHEN CLICKED ON
+    return;
 
-      var svgString             = savableContainerSVG.get(0).outerHTML;
-      regex_zThreeD             = /z:threeD=\"true\"/g;
-      var removeTheseStrings    = [regex_zThreeD];
-      for (stringToRemove of removeTheseStrings)
-      { svgString = svgString.replace(stringToRemove, "");
-      }
+    if (This.disable_createSaveLink == true)
+    { //console.("svg_createSaveLink disabled");
+    }
+    else
+    { //console.("svg_createSaveLink", This);
+
+
 
       This.display.savableSVGString = svgString;
 
@@ -1404,10 +1693,6 @@ thisEqualsThat.oop = function()
   this.ModelInstance.prototype.displayCurrentOutput = function()
   { var outputField         = this.lastAlteredOutputField;
     var visualisationField  = this.lastAlteredVisualisationField;
-  //  console.log("displayCurrentOutput", this, outputField)
-
-
-
     var This = this;
 
     /*var customSVGTitle = this.display.customSVGTitle.val()
@@ -1426,8 +1711,6 @@ thisEqualsThat.oop = function()
           //var svgReferenceVisual  = $(thisEqualsThat.scene.referenceVisual.getSVGData(This.svg3dDisplayJSON.svgRelativeHighness)).clone();
           //svgReferenceVisual.appendTo(This.display.svgReferenceG);
           //$(svgReferenceVisual).attr("transform", "scale(0.2)");
-
-          //console.log("importSVG file", importedRootG);
           thisEqualsThat.svgStore[svgFileName]      = $(importedRootG);
           thisEqualsThat.svgDefsStore[svgFileName]  = $(importedDefs);
 
@@ -1616,7 +1899,6 @@ thisEqualsThat.oop = function()
         function(xml)
         {
               importedNode = document.importNode(xml.documentElement, true);
-             //  console.log("referenceVisual:" + referenceSVGData.fileHandle);//, importedNode);
               var referenceRootG = $(importedNode).find("g").first();
               referenceVisualDefs.svgStore[referenceSVGData.fileHandle] = referenceRootG;
 
@@ -2525,7 +2807,9 @@ thisEqualsThat.oop = function()
 
 
   this.ModelFieldInput = function(modelInstance, data)
+
   { //console.log(modelInstance, data);
+
     this.modelInstance  = modelInstance;
     this.fullAddress    = data.fullAddress;
     this.simpleName     = this.fullAddress.replace(/[\[\]\",]/g, "");
@@ -2535,7 +2819,9 @@ thisEqualsThat.oop = function()
   }
 
   this.ModelFieldInput.prototype.setValue = function(newValue, trigger)
-  { fieldType = this.data.fieldType;
+  { console.log("setValue:", arguments);
+
+    fieldType = this.data.fieldType;
     if (fieldType == "select" || fieldType == "text")
     { this.data.currentValue = newValue;
       this["uiValue_" + fieldType].val(newValue);
@@ -2545,12 +2831,6 @@ thisEqualsThat.oop = function()
       this.slider_ifaUpdatesCurrentValue();
     }
 
-    // if (fieldType == "text" || fieldType == "slider")
-    // { var uiInputText = this["uiValue_" + fieldType];
-    //   if (! uiInputText.is(":focus"))
-    //   { uiInputText.val( this.unitsAroundOutput(this.data.currentValue) );
-    //   }
-    // }
   }
   this.ModelFieldInput.prototype.inputFieldAltered = function(This)
   { if (!This) var This = this;
@@ -2581,16 +2861,7 @@ thisEqualsThat.oop = function()
     var display = this.display = {};
 
     var This = this;
-    // O.create
-    // ( [ ".inputFieldElement",
-    //     [ [ ".inputFieldLabel", "@"+this.data.displayName ],
-    //       [ O.dropdown(this.display, null, ".inputFieldSelect", this.simpleName) ],
-    //     ],
-    //   ],
-    //   this.display,
-    //   null
-    // );
-    // this.uiElement = this.display.inputFieldElement;
+
     O.create
     ( [ ".uiElement.inputFieldElement.inputField.displayFlex.spaceBetween.width100",
         [ [ ".inputFieldLabel.floatLeft", "@"+fieldData.displayName ],
@@ -2604,31 +2875,6 @@ thisEqualsThat.oop = function()
       appendTo
     );
 
-
-    // ( [ ".uiElement.inputFieldElement.displayFlex.spaceBetween",
-    //     [ [ ".inputFieldLabel", "@"+this.data.displayName,
-    //         ,
-    //       ],
-    //     ],
-    //   ],
-    //   this,
-    //   appendTo
-    // );
-
-    // this.uiElement    =
-    //     $("<div />",
-    //       { "class": "inputFieldElement"
-    //       }
-    //     );
-    //   var uiLabel =
-    //     $("<div />",
-    //       { "class": "inputFieldLabel"
-    //       }
-    //     ).text(this.data.displayName);
-
-        //  .append(this.data.displayFieldAddress);
-
-    // var select = $("<select />", {"class": "inputFieldSelect"});
     this.uiValue_select.data("ModelInputField", this);
     this.uiValue_select.on("change", this, this.inputField_select_changeFunction);
     $.each(fieldData.selectableValues,
@@ -2640,11 +2886,6 @@ thisEqualsThat.oop = function()
                   This.uiValue_select.append(selectOption);
                 }
           )
-
-    // this.uiValue_select = select;
-
-    // this.uiElement.append(uiLabel);
-    // this.uiElement.append(this.uiValue_select);
 
     return this.uiElement;
   }
@@ -2728,6 +2969,7 @@ thisEqualsThat.oop = function()
 
     this.display.uiValue_slider.val(unitsAroundOutput(this, this.data.defaultValue));
     this.display.uiValue_slider.data("thisEquals.modelField", this);
+    this.slider_sliderUpdatesText();
 
     return this.display.inputFieldElement;
   }
@@ -3039,7 +3281,26 @@ thisEqualsThat.oop = function()
 
 $().ready(
   function()
-  { window.ThisEqualsThat = new thisEqualsThat.oop();
+  { (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+    (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+    m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','https://www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-99026610-1', 'auto');
+    ga('send', 'pageview');
+
+
+    (function(h,o,t,j,a,r){
+        h.hj=h.hj||function(){(h.hj.q=h.hj.q||[]).push(arguments)};
+        h._hjSettings={hjid:500067,hjsv:5};
+        a=o.getElementsByTagName('head')[0];
+        r=o.createElement('script');r.async=1;
+        r.src=t+h._hjSettings.hjid+j+h._hjSettings.hjsv;
+        a.appendChild(r);
+    })(window,document,'//static.hotjar.com/c/hotjar-','.js?sv=');
+
+
+    window.ThisEqualsThat = new thisEqualsThat.oop();
 
     ThisEqualsThat.init();
   }
