@@ -2,8 +2,6 @@ window.thisEqualsThat = {};
 thisEqualsThat.graphicLoadVersion = "0.0.9.20160726.1639";
 
 $('body').append('<link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">');
-// temporary link
-$('head').append('<link href="/static/css/thisEqThat.css"rel="stylesheet">');
 
 thisEqualsThat.svg          = {};
 thisEqualsThat.svgStore     = {};
@@ -280,7 +278,7 @@ thisEqualsThat.oop = function()
 
     var tutorialPlayerStateChange =
       function(event)
-      {  // console.log("tutorial player state change event", event);
+      { console.log("tutorial player state change event", event);
 
         if (event.data == 0) //ended
         { $("body").toggleClass("playingTutorial", false);
@@ -450,8 +448,7 @@ thisEqualsThat.oop = function()
       { url: "/getClassInstance",
         data: { modelClassName: this.name},
         success: function(data, status, request)
-        { console.log("getInstance:", ajaxOptions);
-          console.log("getInstance:", ajaxOptions.data["modelClassName"]);
+        { console.log("getInstance:", this.name);
           This.modelInstance = new ThisEqualsThat.ModelInstance(This, data[0]);
           This.modelInstance.modelPosition = "top";
           This.modelInstance.displayIntoTarget(displayContainer);
@@ -633,7 +630,6 @@ thisEqualsThat.oop = function()
     }
     return this;
   }
-
 
   this.ModelInstance.prototype.getVisualisationFields = function(appendTo)
   { if (! this.hasOwnProperty("visualisationFieldData"))
@@ -872,11 +868,6 @@ thisEqualsThat.oop = function()
       bottomModelLinkFieldList.select.on("change", this.bottomModelLinkSelectChangeFunction);
     }
     this.display.bottomModelSelectDiv.html(bottomModelLinkFieldList.select);
-    //console.log(choosableFields);
-  }
-  this.ModelInstance.prototype.bottomModelLinkSelectChangeFunction = function(event)
-  { var bottomModelLinkField = $(event.currentTarget.selectedOptions[0]).data("bottomModelLinkField");
-    //console.log(event, bottomModelLinkField);
     //console.(choosableFields);
   }
   this.ModelInstance.prototype.bottomModelLinkSelectChangeFunction = function(event)
@@ -899,7 +890,7 @@ thisEqualsThat.oop = function()
     $.ajax(bottomModelLinkField.setBottomModelAjaxOptions);
   }
   this.ModelInstance.prototype.setBottomModelSuccessFunction = function(data, status, request)
-  {
+  { //console.(data, this);
     topModelInstance = this.modelInstance;
     if (! topModelInstance.bottomModelHistory.hasOwnProperty(data.id))
     { var bottomModelInstance =
@@ -921,6 +912,8 @@ thisEqualsThat.oop = function()
           );
 
     topModelInstance.display.topModelDiv.toggleClass("bottomModelReshuffle", true);
+
+    //console.(topModelInstance.bottomModelInstance);
   }
   this.ModelInstance.prototype.displayIntoTarget = function(targetContainer)
   { if (! this.hasOwnProperty("display"))
@@ -968,7 +961,7 @@ thisEqualsThat.oop = function()
                     [ [ ".panel-heading", ".panel-title.displayFlex.spaceBetween",
                         [ [ "div.visualisationSpinner",
                             [ [ $('<i class="material-icons">visibility</i>') ],
-                              [ ".chooseVisualisationField.color_visualTools" ],
+                              [ ".chooseVisualisationField.smallCaps.color_visualTools" ],
                             ],
                           ],
                           [ ".modelVisualisationValue.color_visualTools" ],
@@ -1033,21 +1026,14 @@ thisEqualsThat.oop = function()
 
       display.modelInstanceDiv.data("thisEquals_modelInstance", this);
 
-      function filterSelectPanel(panelElem) {
-        var amount = $(panelElem).find('button').length;
-        if (amount < 2) $(panelElem).hide();
-      }
-      filterSelectPanel(display.outputFieldSelectPanel);
-      filterSelectPanel(display.visualisationFieldSelectPanel);
-
       display.calculationPanel.on
       ( "click",
         ".panel-title",
         function()
-        {
-          display.outputFieldSelectPanel.find("a").first().click();
+        { display.outputFieldSelectPanel.find("a").first().click();
         }
       );
+
       display.modelSliders.on
       (   "focusin", "input.inputFieldText",
           function()
@@ -1130,6 +1116,8 @@ thisEqualsThat.oop = function()
       // display.svgTextDescription.text("Hello World");
       // display.svgTextInput.on("change", function() { display.svgTextDescription.text($(this).val()); This.svg_createSaveLink(This);});
     }
+
+
 
     this.display.editableTextPlaceholder
         .editable
@@ -1455,7 +1443,6 @@ thisEqualsThat.oop = function()
                   easing: "easeInCubic",
                   progress: function(animation, progress, remainingMs) { //Animate Reference SVG
                     This.progress_translate3d(animation, progress, remainingMs, This);
-                    This.display.visualisationColumn.addClass('visualisationLoader');
                   },
                   complete: function()
                   {  This.svgHUD.renderHUD("preColor");
@@ -1463,9 +1450,8 @@ thisEqualsThat.oop = function()
                     This.inputFieldHUD.renderHUD("postColor");
                     This.svgHUD.renderHUD("postColor");
 
-                    console.log("animationQueue complete", This);
-                    console.log("animationQueue complete", This.display["visualisationColumn"]);
 
+                    //console.("animationQueue complete", This.ifa_queue[0]);
                     if (This.ifa_queue.length > 0)
                     { var ifa_item = This.ifa_queue.shift()
                       This.ifa_queueState = "ready";
@@ -1478,8 +1464,6 @@ thisEqualsThat.oop = function()
                     else
                     { This.ifa_queueState = "ready";
                       This.display.topModelDiv.find(".inputFieldAlteredSpinner").toggleClass("spinner", false);
-                      This.display.visualisationColumn.removeClass('visualisationLoader');
-                      console.log('animated');
                     }
                     This.display.topModelDiv.find(".visualisationSpinner").toggleClass("spinner", false);
 
@@ -1514,20 +1498,6 @@ thisEqualsThat.oop = function()
     svgClonableG.dequeue(this.id);
     svgClonableG.hide();
   }
-  this.ModelInstance.prototype.svg_createSaveLink = function(This)
-  { if (This.disable_createSaveLink == true) {
-      //console.log("svg_createSaveLink disabled");
-  }  else
-    { //console.log("svg_createSaveLink", This);
-
-      var savableContainerSVG = $(This.display.rootSVG).clone();
-      savableContainerSVG
-          .attr("width",          This.display.rootSVG.css("width"))
-          .attr("height",         This.display.rootSVG.css("height"))
-      ;
-      var removeTheseAttributes = ["xmlns:xlink", "xmlns:z", "z:xInfinite", "z:yInfinite", "z:zRatio"];
-      for (attributeToRemove  of removeTheseAttributes)
-      { savableContainerSVG.removeAttr(attributeToRemove)
   this.ModelInstance.prototype.saveInfogram = function(This)
   { var This = this;
 
@@ -1542,7 +1512,6 @@ thisEqualsThat.oop = function()
 
         window.open(data.infogramURL, "_blank");
         ThisEqualsThat.display.wholePageDisableSpinner.toggleClass("displayNone", true);;
-
       }
     }
 
@@ -1689,6 +1658,10 @@ thisEqualsThat.oop = function()
   this.ModelInstance.prototype.displayCurrentOutput = function()
   { var outputField         = this.lastAlteredOutputField;
     var visualisationField  = this.lastAlteredVisualisationField;
+    //console.("displayCurrentOutput", this, outputField)
+
+
+
     var This = this;
 
     /*var customSVGTitle = this.display.customSVGTitle.val()
@@ -1707,6 +1680,8 @@ thisEqualsThat.oop = function()
           //var svgReferenceVisual  = $(thisEqualsThat.scene.referenceVisual.getSVGData(This.svg3dDisplayJSON.svgRelativeHighness)).clone();
           //svgReferenceVisual.appendTo(This.display.svgReferenceG);
           //$(svgReferenceVisual).attr("transform", "scale(0.2)");
+
+          //console.("importSVG file", importedRootG);
           thisEqualsThat.svgStore[svgFileName]      = $(importedRootG);
           thisEqualsThat.svgDefsStore[svgFileName]  = $(importedDefs);
 
@@ -1895,6 +1870,7 @@ thisEqualsThat.oop = function()
         function(xml)
         {
               importedNode = document.importNode(xml.documentElement, true);
+              //console.("referenceVisual:" + referenceSVGData.fileHandle);//, importedNode);
               var referenceRootG = $(importedNode).find("g").first();
               referenceVisualDefs.svgStore[referenceSVGData.fileHandle] = referenceRootG;
 
@@ -1965,7 +1941,7 @@ thisEqualsThat.oop = function()
   this.InputFieldHUD.prototype.FieldOrder.prototype.display =function(orderDefinition, tagHook)
   { // html and behaviour a widget for a  colorPicker widhet. Use the code defined in the colorPickerData to run when the colorPicker exits.
     //    it defines code which generates CSS to change the colors of shit in a visualisation specific way.
-    //console.log("FieldOrder", this.inputFieldHUD.modelInstance.inputFields);
+    console.log("FieldOrder", this.inputFieldHUD.modelInstance.inputFields);
     var This    = this;
     var context = this.context;
 
@@ -1973,7 +1949,7 @@ thisEqualsThat.oop = function()
     { var elementList = [];
 
       for (orderItem of orderDefinition.orderList)
-      { //console.log("  "+`["${orderItem.replace(", ", "\", \"")}"]`); //"
+      { console.log("  "+`["${orderItem.replace(", ", "\", \"")}"]`); //"
         if (orderItem == "spacer")
         { elementList.push($(`<div class='inputFieldElement spacer' />`) );
         }
@@ -2010,7 +1986,7 @@ thisEqualsThat.oop = function()
 
     for (replaceConfigName in replaceDict)
     { var replaceConfig = replaceDict[replaceConfigName];
-      //console.log(replaceConfig, replaceConfigName);
+      console.log(replaceConfig, replaceConfigName);
 
       if (! This.context.hasOwnProperty(replaceConfigName) )
       { This.context[replaceConfigName] =
@@ -2042,7 +2018,7 @@ thisEqualsThat.oop = function()
           $(` <div class='ratioColorTotal'>
                 <div class='inputFieldElement total'          />
                 <div class='ratioColorList'     />
-                <i class="inputFieldElement addRatio hudItem material-icons">add_box</i>
+                <div class='inputFieldElement addRatio hudItem fa fa-plus-circle'       />
               </div>
             `);
       inputFieldHUD.modelInstance.display.modelSliders.prepend(container);
@@ -2117,7 +2093,7 @@ thisEqualsThat.oop = function()
                       <input  class='percentageSpinner' type='number' min='0' max='100' step='0.1' value ='${initialRatio * 100}' />
                       <div    class="textLabel percentLabel">%</div>
                       <input  class='spectrumColorPickerInput' value='${initialColor.toString("rgb")}' />
-                      <i      class="closeBox material-icons">close</i>
+                      <span   class="closeBox    fa fa-times-circle" />
                     </div>
                   `
                  );
@@ -2509,7 +2485,7 @@ thisEqualsThat.oop = function()
 
     for (fillManagerSelector in fillManagersDict)
     { var fillManagerData = fillManagersDict[fillManagerSelector];
-    //  console.log("fillManager", fillManagerSelector, fillManagerData);
+      console.log("fillManager", fillManagerSelector, fillManagerData);
 
       var selectorContext = null;
       if (! this.context.hasOwnProperty(fillManagerSelector) )
@@ -2558,7 +2534,7 @@ thisEqualsThat.oop = function()
       }
       else
       { localContext = selectorContext.byVisualisation[lastAlteredVisualisationField];
-      //  console.log("localContext", localContext);
+        console.log("localContext", localContext);
       }
 
       localContext.memoisedElements = {};
@@ -2767,7 +2743,7 @@ thisEqualsThat.oop = function()
       else
       { randomiseConfig = randomiseClonesDict[randomiseProperty];
       }
-      //console.log(randomiseProperty, randomiseConfig);
+      console.log(randomiseProperty, randomiseConfig);
 
       if (!contextByVisualisation[randomiseProperty] )
       { contextByVisualisation[randomiseProperty] =  randomiseConfig
@@ -2803,9 +2779,7 @@ thisEqualsThat.oop = function()
 
 
   this.ModelFieldInput = function(modelInstance, data)
-
-  { //console.log(modelInstance, data);
-
+  { //console.(modelInstance, data);
     this.modelInstance  = modelInstance;
     this.fullAddress    = data.fullAddress;
     this.simpleName     = this.fullAddress.replace(/[\[\]\",]/g, "");
@@ -2860,7 +2834,7 @@ thisEqualsThat.oop = function()
 
     O.create
     ( [ ".uiElement.inputFieldElement.inputField.displayFlex.spaceBetween.width100",
-        [ [ ".inputFieldLabel.floatLeft", "@"+fieldData.displayName ],
+        [ [ ".inputFieldLabel.floatLeft.smallCaps", "@"+fieldData.displayName ],
           [ ".slideAndValue",
             [ [ "select.uiValue_select.inputFieldSelect" ],
             ],
@@ -2886,8 +2860,8 @@ thisEqualsThat.oop = function()
     return this.uiElement;
   }
   this.ModelFieldInput.prototype.inputField_select_changeFunction = function(event)
-  { //console.debug(this);
-    //console.debug(event);
+  { console.debug(this);
+    console.debug(event);
     var This  = $(this).data("ModelInputField");
     This = event.data;
 
@@ -2899,7 +2873,7 @@ thisEqualsThat.oop = function()
   {   var fieldData = this.data;
       O.create
       ( [ ".uiElement.inputFieldElement.displayFlex.spaceBetween",
-          [ [ ".inputFieldLabel", "@"+fieldData.displayName],
+          [ [ ".inputFieldLabel.smallCaps", "@"+fieldData.displayName],
             [ "input.uiValue_text.inputFieldText"+".unit_"+this.data.unit ],
           ],
         ],
@@ -2952,8 +2926,11 @@ thisEqualsThat.oop = function()
     O.create
     ( [ ".inputFieldElement.inputField.displayInlineBlock.width100",
         [ [ ".inputFieldLabel.floatLeft", "@"+this.data.displayName ],
-          [ $("<input type='text' class='uiValue_slider inputFieldText' />") ],
-          [ ".uiSlider.inputFieldSlider" ],
+          [ ".slideAndValue",
+            [ [ $("<input type='text' class='uiValue_slider inputFieldText' />"), ],
+              [ ".uiSlider.inputFieldSlider", ],
+            ],
+          ],
         ],
       ],
       traverse(this, "display"),
@@ -2970,7 +2947,7 @@ thisEqualsThat.oop = function()
     return this.display.inputFieldElement;
   }
   this.ModelFieldInput.prototype.slider_linearSliderOptions = function()
-  { //console.debug("linear");
+  { console.debug("linear");
     var fieldData = this.data;
     var This = this;
     var sliderOptions =
@@ -2993,7 +2970,7 @@ thisEqualsThat.oop = function()
     return sliderOptions;
   }
   this.ModelFieldInput.prototype.slider_logSliderOptions  = function()
-  { //console.debug("log");
+  { console.debug("log");
     var fieldData = this.data;
     var max = fieldData.rangeTop
     var halfMax = max / 2;
