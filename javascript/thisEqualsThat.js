@@ -1,7 +1,9 @@
 window.thisEqualsThat = {};
 thisEqualsThat.graphicLoadVersion = "0.0.9.20160726.1639";
 
-$('body').append('<link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">');
+$('head').append('<link href="https://fonts.googleapis.com/icon?family=Material+Icons"rel="stylesheet">');
+// temporary link
+$('head').append('<link href="/static/css/thisEqThat.css"rel="stylesheet">');
 
 thisEqualsThat.svg          = {};
 thisEqualsThat.svgStore     = {};
